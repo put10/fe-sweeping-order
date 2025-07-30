@@ -1,5 +1,5 @@
 import ContentLayout from "@/components/template/content/(front-office)/content-layout";
-import { PackingTable } from "@/components/(front-office)/packing/packing-table";
+import { PackingTab } from "@/components/(front-office)/packing/packing-tab";
 
 export default function PackingPage() {
   return (
@@ -10,7 +10,7 @@ export default function PackingPage() {
           Monitor all packaging activities and statuses
         </p>
       </div>
-      <PackingTable />
+      <PackingTab />
     </ContentLayout>
   );
 }

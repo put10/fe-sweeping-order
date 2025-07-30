@@ -2,7 +2,14 @@
 
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { FilterIcon, X, CalendarIcon, Search } from "lucide-react";
+import {
+  FilterIcon,
+  X,
+  CalendarIcon,
+  Search,
+  ChevronsUpDown,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,51 +26,65 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 
 export function PackingFilter({
+  brandOptions = [],
   onFilterChange,
   onSearchChange,
   searchTerm,
   disabled,
+  isPackingReady = false,
 }) {
   // Filter states
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [startDate, setStartDate] = useState(undefined);
   const [endDate, setEndDate] = useState(undefined);
+  const [selectedBrandId, setSelectedBrandId] = useState("");
+  const [brandFilterOpen, setBrandFilterOpen] = useState(false);
 
   // Build filter params object
   const filterParams = useMemo(
     () => ({
       start_date: startDate ? format(startDate, "yyyy-MM-dd") : "",
       end_date: endDate ? format(endDate, "yyyy-MM-dd") : "",
+      brand: selectedBrandId || "",
     }),
-    [startDate, endDate],
+    [startDate, endDate, selectedBrandId],
   );
 
   // Track if any filters are active
-  const hasActiveFilters = !!(startDate || endDate);
+  const hasActiveFilters = !!(startDate || endDate || selectedBrandId);
 
   // Apply filters and close dialog
   const applyFilters = () => {
-    if (startDate && endDate) {
-      onFilterChange(filterParams);
-      setFilterDialogOpen(false);
-    }
+    onFilterChange(filterParams);
+    setFilterDialogOpen(false);
   };
 
   // Clear all filters
   const clearAllFilters = () => {
     setStartDate(undefined);
     setEndDate(undefined);
+    setSelectedBrandId("");
 
     // Notify parent component
-    onFilterChange({ start_date: "", end_date: "" });
+    onFilterChange({ start_date: "", end_date: "", brand: "" });
   };
 
   // Count active filters for badge
-  const activeFiltersCount = [startDate, endDate].filter(Boolean).length;
+  const activeFiltersCount = [startDate, endDate, selectedBrandId].filter(
+    Boolean,
+  ).length;
 
   return (
     <div className="flex flex-col gap-3">
@@ -71,37 +92,55 @@ export function PackingFilter({
         <div className="relative flex-1 min-w-0">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search packing by ID or Printing ID"
+            placeholder="Search packing by ID or Order ID"
             className="pl-8 w-full"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
 
-        <Button
-          variant="outline"
-          onClick={() => setFilterDialogOpen(true)}
-          className={cn(
-            "whitespace-nowrap",
-            hasActiveFilters && "border-primary text-primary",
-          )}
-          disabled={disabled}
-          size="sm"
-          title="Filter Packing"
-        >
-          <FilterIcon />
-          <span className="hidden xs:inline">Filters</span>
-          {activeFiltersCount > 0 && (
-            <Badge variant="secondary" className="ml-1">
-              {activeFiltersCount}
-            </Badge>
-          )}
-        </Button>
+        {/* Only show filter button if NOT in packing ready tab */}
+        {!isPackingReady && (
+          <Button
+            variant="outline"
+            onClick={() => setFilterDialogOpen(true)}
+            className={cn(
+              "whitespace-nowrap",
+              hasActiveFilters && "border-primary text-primary",
+            )}
+            disabled={disabled}
+            size="sm"
+            title="Filter Packing"
+          >
+            <FilterIcon />
+            <span className="hidden xs:inline">Filters</span>
+            {activeFiltersCount > 0 && (
+              <Badge variant="secondary" className="ml-1">
+                {activeFiltersCount}
+              </Badge>
+            )}
+          </Button>
+        )}
       </div>
 
       {/* Active Filter Badges */}
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2">
+          {selectedBrandId && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              Brand: {selectedBrandId}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => {
+                  setSelectedBrandId("");
+                  onFilterChange({
+                    ...filterParams,
+                    brand: "",
+                  });
+                }}
+              />
+            </Badge>
+          )}
           {startDate && (
             <Badge variant="secondary" className="flex items-center gap-1">
               From: {format(startDate, "yyyy-MM-dd")}
@@ -109,13 +148,17 @@ export function PackingFilter({
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => {
                   setStartDate(undefined);
-                  if (endDate) {
+                  if (endDate || selectedBrandId) {
                     onFilterChange({
                       ...filterParams,
                       start_date: "",
                     });
                   } else {
-                    onFilterChange({ start_date: "", end_date: "" });
+                    onFilterChange({
+                      start_date: "",
+                      end_date: "",
+                      brand: "",
+                    });
                   }
                 }}
               />
@@ -128,13 +171,17 @@ export function PackingFilter({
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => {
                   setEndDate(undefined);
-                  if (startDate) {
+                  if (startDate || selectedBrandId) {
                     onFilterChange({
                       ...filterParams,
                       end_date: "",
                     });
                   } else {
-                    onFilterChange({ start_date: "", end_date: "" });
+                    onFilterChange({
+                      start_date: "",
+                      end_date: "",
+                      brand: "",
+                    });
                   }
                 }}
               />
@@ -160,6 +207,75 @@ export function PackingFilter({
             <DialogTitle>Filter Packing</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {/* Brand Filter */}
+            <div className="grid gap-2">
+              <Label>Brand/Client</Label>
+              <Popover open={brandFilterOpen} onOpenChange={setBrandFilterOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={brandFilterOpen}
+                    className="w-full justify-between"
+                  >
+                    {selectedBrandId
+                      ? brandOptions.find(
+                          (brand) => brand.value === selectedBrandId,
+                        )?.label || "Select brand..."
+                      : "All brands/clients"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Search brand..." />
+                    <CommandList>
+                      <CommandEmpty>No brand found.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => {
+                            setSelectedBrandId("");
+                            setBrandFilterOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              selectedBrandId === ""
+                                ? "opacity-100"
+                                : "opacity-0",
+                              "mr-2 h-4 w-4",
+                            )}
+                          />
+                          All brands
+                        </CommandItem>
+                        {brandOptions.map((brand) => (
+                          <CommandItem
+                            key={brand.value}
+                            value={brand.value}
+                            onSelect={() => {
+                              setSelectedBrandId(brand.value);
+                              setBrandFilterOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                selectedBrandId === brand.value
+                                  ? "opacity-100"
+                                  : "opacity-0",
+                                "mr-2 h-4 w-4",
+                              )}
+                            />
+                            {brand.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
             {/* Date Range Filter */}
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -173,7 +289,7 @@ export function PackingFilter({
                         !startDate && "text-muted-foreground",
                       )}
                     >
-                      <CalendarIcon />
+                      <CalendarIcon className="mr-2 h-4 w-4" />
                       {startDate ? (
                         format(startDate, "yyyy-MM-dd")
                       ) : (
@@ -202,7 +318,7 @@ export function PackingFilter({
                         !endDate && "text-muted-foreground",
                       )}
                     >
-                      <CalendarIcon />
+                      <CalendarIcon className="mr-2 h-4 w-4" />
                       {endDate ? (
                         format(endDate, "yyyy-MM-dd")
                       ) : (
@@ -226,9 +342,7 @@ export function PackingFilter({
             <Button variant="outline" onClick={clearAllFilters}>
               Reset Filters
             </Button>
-            <Button onClick={applyFilters} disabled={!startDate || !endDate}>
-              Apply Filters
-            </Button>
+            <Button onClick={applyFilters}>Apply Filters</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -105,4 +105,48 @@ export const orderApi = {
       method: "PATCH",
     })({ status_pesanan: status });
   },
+
+  getOrdersSedangDikirim: (params = {}) => {
+    return orderApi.filterOrders({
+      ...params,
+      status_pesanan: "sedang_dikirim",
+    });
+  },
+
+  getOrdersSedangDikirimByBrand: (id_brand) => {
+    return orderApi.filterOrders({
+      status_pesanan: "sedang_dikirim",
+      id_brand: id_brand,
+    });
+  },
+
+  getDownloadTemplateImport: createApiRequest({
+    endpoint: "/pesanan/download-template",
+    method: "GET",
+    extraConfig: {
+      responseType: "blob",
+    },
+    transformResponse: (data) => data,
+  }),
+
+  createOrderImport: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return createApiRequest({
+      endpoint: "/pesanan/import",
+      method: "POST",
+    })(formData);
+  },
+
+  exportSelectedOrders: (selectedIds) => {
+    return createApiRequest({
+      endpoint: "/pesanan/export-selected",
+      method: "POST",
+      extraConfig: {
+        responseType: "blob",
+      },
+      transformResponse: (data) => data,
+    })({ selectedIds });
+  },
 };

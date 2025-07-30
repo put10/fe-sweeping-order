@@ -191,7 +191,7 @@ export function UserTableContent(props) {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={4}>Total Records: {totalItems}</TableCell>
+              <TableCell colSpan={5}>Total Records: {totalItems}</TableCell>
             </TableRow>
           </TableFooter>
         </Table>

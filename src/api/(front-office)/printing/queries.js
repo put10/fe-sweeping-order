@@ -16,6 +16,13 @@ export const useGetPrintingById = (id_pencetakan) => {
   });
 };
 
+export const useGetPrintingReady = () => {
+  return useQuery({
+    queryKey: ["get-printing-ready"],
+    queryFn: () => printingApi.getPrintingReady(),
+  });
+};
+
 export const useSearchPrinting = (params) => {
   return useQuery({
     queryKey: ["search-printing", params],
@@ -28,6 +35,6 @@ export const useFilterPrinting = (params) => {
   return useQuery({
     queryKey: ["filter-printing", params],
     queryFn: () => printingApi.filterPrinting(params),
-    enabled: !!(params.start_date && params.end_date),
+    enabled: !!(params.start_date && params.end_date) || !!params.brand,
   });
 };

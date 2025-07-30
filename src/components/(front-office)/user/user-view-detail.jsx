@@ -57,13 +57,13 @@ export default function UserViewDetail() {
                   <TableCell>{user.role}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">Created At</TableCell>
+                  <TableCell className="font-medium">Date Added</TableCell>
                   <TableCell>
                     {formatDateToIndonesian(user.created_at)}
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">Updated At</TableCell>
+                  <TableCell className="font-medium">Last Modified</TableCell>
                   <TableCell>
                     {formatDateToIndonesian(user.updated_at)}
                   </TableCell>

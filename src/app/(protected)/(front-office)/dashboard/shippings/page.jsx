@@ -1,5 +1,5 @@
 import ContentLayout from "@/components/template/content/(front-office)/content-layout";
-import { ShippingTable } from "@/components/(front-office)/shipping/shipping-table";
+import { ShippingTab } from "@/components/(front-office)/shipping/shipping-tab";
 
 export default function ShippingPage() {
   return (
@@ -7,10 +7,10 @@ export default function ShippingPage() {
       <div className="mb-6">
         <h2 className="text-xl font-bold">Shippings</h2>
         <p className="text-muted-foreground text-sm">
-          Track all shipments and delivery statuses
+          Manage all shipping operations and deliveries
         </p>
       </div>
-      <ShippingTable />
+      <ShippingTab />
     </ContentLayout>
   );
 }

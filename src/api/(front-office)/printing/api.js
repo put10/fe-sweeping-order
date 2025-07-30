@@ -18,6 +18,16 @@ export const printingApi = {
     })();
   },
 
+  getPrintingReady: createApiRequest({
+    endpoint: "/pencetakan/ready",
+    method: "GET",
+  }),
+
+  createPrintingMany: createApiRequest({
+    endpoint: "/pencetakan/create-many",
+    method: "POST",
+  }),
+
   searchPrinting: (params) => {
     const searchTerm = params.id_pencetakan || params.id_pesanan;
 
@@ -56,6 +66,9 @@ export const printingApi = {
     if (params.end_date) {
       queryParams.append("end_date", params.end_date);
     }
+    if (params.brand) {
+      queryParams.append("brand", params.brand);
+    }
 
     return createApiRequest({
       endpoint: `/pencetakan/filter?${queryParams.toString()}`,
@@ -71,6 +84,9 @@ export const printingApi = {
     }
     if (params.end_date) {
       queryParams.append("end_date", params.end_date);
+    }
+    if (params.brand) {
+      queryParams.append("brand", params.brand);
     }
 
     return createApiRequest({
@@ -91,5 +107,16 @@ export const printingApi = {
       endpoint: "/pencetakan/import",
       method: "POST",
     })(formData);
+  },
+
+  exportSelectedPrinting: (selectedIds) => {
+    return createApiRequest({
+      endpoint: "/pencetakan/export-selected",
+      method: "POST",
+      extraConfig: {
+        responseType: "blob",
+      },
+      transformResponse: (data) => data,
+    })({ selectedIds });
   },
 };

@@ -16,6 +16,13 @@ export const useGetSweepingOrderById = (id_proses) => {
   });
 };
 
+export const useGetSweepingReady = () => {
+  return useQuery({
+    queryKey: ["get-sweeping-ready"],
+    queryFn: () => sweepingOrderApi.getSweepingReady(),
+  });
+};
+
 export const useSearchSweepingOrder = (params) => {
   return useQuery({
     queryKey: ["search-sweeping-order", params],

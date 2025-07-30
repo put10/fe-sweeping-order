@@ -44,3 +44,18 @@ export const useFilterOrders = (params) => {
     ),
   });
 };
+
+export const useGetOrdersSedangDikirim = (params = {}) => {
+  return useQuery({
+    queryKey: ["orders-sedang-dikirim", params],
+    queryFn: () => orderApi.getOrdersSedangDikirim(params),
+  });
+};
+
+export const useGetOrdersSedangDikirimByBrand = (id_brand) => {
+  return useQuery({
+    queryKey: ["orders-sedang-dikirim-by-brand", id_brand],
+    queryFn: () => orderApi.getOrdersSedangDikirimByBrand(id_brand),
+    enabled: !!id_brand,
+  });
+};

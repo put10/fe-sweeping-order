@@ -23,6 +23,11 @@ export default function SweepingViewDetail() {
     useGetSweepingOrderById(sweepingId);
   const sweeping = sweepingResponse?.data;
 
+  // Get printing, packing, and shipping data if available
+  const printing = sweeping?.pesanan?.pencetakan_label?.[0];
+  const packing = printing?.packing?.[0];
+  const shipping = packing?.pengiriman?.[0];
+
   return (
     <section className={"mb-6"}>
       <div className="flex items-center gap-4 mb-6">
@@ -59,19 +64,24 @@ export default function SweepingViewDetail() {
                 <TableRow>
                   <TableCell className="font-medium">Process Status</TableCell>
                   <TableCell>
-                    <span
+                    <Badge
+                      variant="outline"
                       className={`capitalize ${
-                        sweeping.status_proses === "completed"
-                          ? "text-green-600"
-                          : sweeping.status_proses === "processed"
-                            ? "text-blue-600"
-                            : "text-yellow-600"
+                        sweeping.status_proses === "done_interface"
+                          ? "bg-green-100 text-green-700 border-green-200"
+                          : sweeping.status_proses === "not_interface"
+                            ? "bg-red-100 text-red-700 border-red-200"
+                            : sweeping.status_proses === "completed"
+                              ? "bg-green-100 text-green-700 border-green-200"
+                              : sweeping.status_proses === "processed"
+                                ? "bg-blue-100 text-blue-700 border-blue-200"
+                                : "bg-yellow-100 text-yellow-700 border-yellow-200"
                       }`}
                     >
                       {sweeping.status_proses
                         ? sweeping.status_proses.replace(/_/g, "-")
                         : "-"}
-                    </span>
+                    </Badge>
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -235,6 +245,94 @@ export default function SweepingViewDetail() {
                 </div>
               </div>
             )}
+
+          {/* Printing Information */}
+          {printing && (
+            <div className="rounded-md border">
+              <h3 className="text-lg font-medium p-4 border-b">
+                Printing Information
+              </h3>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium w-1/4">
+                      Printing ID
+                    </TableCell>
+                    <TableCell>{printing.id_pencetakan}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">
+                      Tracking Number
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-50 text-blue-700 border-blue-200"
+                      >
+                        {printing.no_resi}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Printing Date</TableCell>
+                    <TableCell>
+                      {formatDateToIndonesian(printing.tgl_pencetakan)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {/* Packing Information */}
+          {packing && (
+            <div className="rounded-md border">
+              <h3 className="text-lg font-medium p-4 border-b">
+                Packing Information
+              </h3>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium w-1/4">
+                      Packing ID
+                    </TableCell>
+                    <TableCell>{packing.id_packing}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Packing Date</TableCell>
+                    <TableCell>
+                      {formatDateToIndonesian(packing.tgl_packing)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {/* Shipping Information */}
+          {shipping && (
+            <div className="rounded-md border">
+              <h3 className="text-lg font-medium p-4 border-b">
+                Shipping Information
+              </h3>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium w-1/4">
+                      Shipping ID
+                    </TableCell>
+                    <TableCell>{shipping.id_pengiriman}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Shipping Date</TableCell>
+                    <TableCell>
+                      {formatDateToIndonesian(shipping.tgl_pengiriman)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </div>
       )}
 

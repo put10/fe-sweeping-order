@@ -18,6 +18,16 @@ export const shippingApi = {
     })();
   },
 
+  getShippingReady: createApiRequest({
+    endpoint: "/pengiriman/ready",
+    method: "GET",
+  }),
+
+  createShippingMany: createApiRequest({
+    endpoint: "/pengiriman/create-many",
+    method: "POST",
+  }),
+
   searchShipping: (search) => {
     return createApiRequest({
       endpoint: `/pengiriman?search=${search}`,
@@ -34,6 +44,9 @@ export const shippingApi = {
     if (params.end_date) {
       queryParams.append("end_date", params.end_date);
     }
+    if (params.brand) {
+      queryParams.append("brand", params.brand);
+    }
 
     return createApiRequest({
       endpoint: `/pengiriman/filter?${queryParams.toString()}`,
@@ -49,6 +62,9 @@ export const shippingApi = {
     }
     if (params.end_date) {
       queryParams.append("end_date", params.end_date);
+    }
+    if (params.brand) {
+      queryParams.append("brand", params.brand);
     }
 
     return createApiRequest({
@@ -69,5 +85,16 @@ export const shippingApi = {
       endpoint: "/pengiriman/import",
       method: "POST",
     })(formData);
+  },
+
+  exportSelectedShipping: (selectedIds) => {
+    return createApiRequest({
+      endpoint: "/pengiriman/export-selected",
+      method: "POST",
+      extraConfig: {
+        responseType: "blob",
+      },
+      transformResponse: (data) => data,
+    })({ selectedIds });
   },
 };

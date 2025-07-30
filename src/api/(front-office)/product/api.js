@@ -46,4 +46,25 @@ export const productApi = {
       method: "GET",
     })();
   },
+
+  getBestsellingProducts: (params) => {
+    const { month, year, limit } = params;
+    let queryString = `?month=${month}`;
+    if (year) queryString += `&year=${year}`;
+    if (limit) queryString += `&limit=${limit}`;
+
+    return createApiRequest({
+      endpoint: `/produk/chart/terlaris${queryString}`,
+      method: "GET",
+    })();
+  },
+
+  getProductsByStock: (limit) => {
+    let queryString = limit ? `?limit=${limit}` : "";
+
+    return createApiRequest({
+      endpoint: `/produk/chart/by-stok${queryString}`,
+      method: "GET",
+    })();
+  },
 };

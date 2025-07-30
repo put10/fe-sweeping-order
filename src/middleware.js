@@ -68,6 +68,16 @@ const canAccessCustomers = (role) => {
   return ["ORDER_STAFF", "ADMIN"].includes(role);
 };
 
+// Stock access control
+const canAccessStock = (role) => {
+  return ["ADMIN_IT", "ADMIN"].includes(role);
+};
+
+// Warehouse access control
+const canAccessWarehouse = (role) => {
+  return ["ADMIN_IT", "ADMIN"].includes(role);
+};
+
 // Function to check if user has access to the requested route
 const hasAccessToRoute = (path, role) => {
   if (path === "/dashboard") return true;
@@ -100,6 +110,9 @@ const hasAccessToRoute = (path, role) => {
   )
     return false;
   if (path.includes("/dashboard/customers") && !canAccessCustomers(role))
+    return false;
+  if (path.includes("/dashboard/stock") && !canAccessStock(role)) return false;
+  if (path.includes("/dashboard/warehouse") && !canAccessWarehouse(role))
     return false;
 
   return true;

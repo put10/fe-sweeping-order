@@ -1,5 +1,5 @@
 import ContentLayout from "@/components/template/content/(front-office)/content-layout";
-import { PrintingTable } from "@/components/(front-office)/printing/printing-table";
+import { PrintingTab } from "@/components/(front-office)/printing/printing-tab";
 
 export default function PrintingPage() {
   return (
@@ -10,7 +10,8 @@ export default function PrintingPage() {
           Manage all printing jobs and requests
         </p>
       </div>
-      <PrintingTable />
+
+      <PrintingTab />
     </ContentLayout>
   );
 }

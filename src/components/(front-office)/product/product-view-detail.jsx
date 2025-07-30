@@ -68,6 +68,10 @@ export default function ProductViewDetail() {
                 <TableCell>{product.brand?.nama_brand || "-"}</TableCell>
               </TableRow>
               <TableRow>
+                <TableCell className="font-medium">Warehouse Name</TableCell>
+                <TableCell>{product.gudang?.nama_gudang || "-"}</TableCell>
+              </TableRow>
+              <TableRow>
                 <TableCell className="font-medium">Category</TableCell>
                 <TableCell>{product.kategori}</TableCell>
               </TableRow>
@@ -80,13 +84,13 @@ export default function ProductViewDetail() {
                 <TableCell>{product.stok}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Created At</TableCell>
+                <TableCell className="font-medium">Date Added</TableCell>
                 <TableCell>
                   {formatDateToIndonesian(product.created_at)}
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Updated At</TableCell>
+                <TableCell className="font-medium">Last Modified</TableCell>
                 <TableCell>
                   {formatDateToIndonesian(product.updated_at)}
                 </TableCell>

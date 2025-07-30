@@ -48,6 +48,7 @@ export function SweepingFilter({
   onSearchChange,
   searchTerm,
   disabled,
+  isSweepingReady = false,
 }) {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [selectedProcessStatus, setSelectedProcessStatus] = useState("");
@@ -108,25 +109,28 @@ export function SweepingFilter({
           />
         </div>
 
-        <Button
-          variant="outline"
-          onClick={() => setFilterDialogOpen(true)}
-          className={cn(
-            "whitespace-nowrap",
-            hasActiveFilters && "border-primary text-primary",
-          )}
-          disabled={disabled}
-          size="sm"
-          title="Filter Sweeping Orders"
-        >
-          <FilterIcon />
-          <span className="hidden xs:inline">Filters</span>
-          {activeFiltersCount > 0 && (
-            <Badge variant="secondary" className="ml-1">
-              {activeFiltersCount}
-            </Badge>
-          )}
-        </Button>
+        {/* Only show filter button if NOT in sweeping ready tab */}
+        {!isSweepingReady && (
+          <Button
+            variant="outline"
+            onClick={() => setFilterDialogOpen(true)}
+            className={cn(
+              "whitespace-nowrap",
+              hasActiveFilters && "border-primary text-primary",
+            )}
+            disabled={disabled}
+            size="sm"
+            title="Filter Sweeping Orders"
+          >
+            <FilterIcon />
+            <span className="hidden xs:inline">Filters</span>
+            {activeFiltersCount > 0 && (
+              <Badge variant="secondary" className="ml-1">
+                {activeFiltersCount}
+              </Badge>
+            )}
+          </Button>
+        )}
       </div>
 
       {hasActiveFilters && (

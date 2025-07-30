@@ -18,6 +18,16 @@ export const packingApi = {
     })();
   },
 
+  getPackingReady: createApiRequest({
+    endpoint: "/packing/ready",
+    method: "GET",
+  }),
+
+  createPackingMany: createApiRequest({
+    endpoint: "/packing/create-many",
+    method: "POST",
+  }),
+
   searchPacking: (params) => {
     const searchTerm =
       params.id_packing || params.id_pencetakan || params.id_pesanan;
@@ -59,6 +69,9 @@ export const packingApi = {
     if (params.end_date) {
       queryParams.append("end_date", params.end_date);
     }
+    if (params.brand) {
+      queryParams.append("brand", params.brand);
+    }
 
     return createApiRequest({
       endpoint: `/packing/filter?${queryParams.toString()}`,
@@ -74,6 +87,9 @@ export const packingApi = {
     }
     if (params.end_date) {
       queryParams.append("end_date", params.end_date);
+    }
+    if (params.brand) {
+      queryParams.append("brand", params.brand);
     }
 
     return createApiRequest({
@@ -94,5 +110,16 @@ export const packingApi = {
       endpoint: "/packing/import",
       method: "POST",
     })(formData);
+  },
+
+  exportSelectedPacking: (selectedIds) => {
+    return createApiRequest({
+      endpoint: "/packing/export-selected",
+      method: "POST",
+      extraConfig: {
+        responseType: "blob",
+      },
+      transformResponse: (data) => data,
+    })({ selectedIds });
   },
 };

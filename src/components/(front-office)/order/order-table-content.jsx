@@ -11,13 +11,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { EyeIcon } from "lucide-react";
+import { EyeIcon, ChevronDown } from "lucide-react";
 import { usePatchStatusPesananMutation } from "@/api/(front-office)/order/mutation";
 import { PaginationLayout } from "@/components/template/pagination/pagination-layout";
 import { formatDateToIndonesian } from "@/utils/date-formatter";
 import { getStatusBadgeColorClass } from "@/utils/status-formatter";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export function OrderTableContent(props) {
   const patchStatusMutation = usePatchStatusPesananMutation();
@@ -33,7 +41,9 @@ export function OrderTableContent(props) {
   const startIndex = (props.currentPage - 1) * props.itemsPerPage;
   const endIndex = Math.min(startIndex + props.itemsPerPage, totalItems);
   const currentData = props.orders?.data?.slice(startIndex, endIndex) || [];
+  const allData = props.orders?.data || [];
   const [needsHorizontalScroll, setNeedsHorizontalScroll] = useState(false);
+  const [selectionMode, setSelectionMode] = useState("current"); // "current" or "all"
 
   const handleStatusChange = (orderId, newStatus) => {
     patchStatusMutation.mutate({
@@ -41,6 +51,56 @@ export function OrderTableContent(props) {
       status: newStatus,
     });
   };
+
+  const handleSelectCurrentPage = () => {
+    const currentPageIds = currentData.map((order) => order.id_pesanan);
+    props.setSelectedIds((prev) => {
+      const uniqueIds = new Set([...prev, ...currentPageIds]);
+      return Array.from(uniqueIds);
+    });
+  };
+
+  const handleSelectAllPages = () => {
+    const allIds = allData.map((order) => order.id_pesanan);
+    props.setSelectedIds(allIds);
+  };
+
+  const handleClearSelection = () => {
+    props.setSelectedIds([]);
+  };
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      if (selectionMode === "current") {
+        handleSelectCurrentPage();
+      } else {
+        handleSelectAllPages();
+      }
+    } else {
+      handleClearSelection();
+    }
+  };
+
+  const handleSelectOrder = (orderId, checked) => {
+    if (checked) {
+      props.setSelectedIds((prev) => [...prev, orderId]);
+    } else {
+      props.setSelectedIds((prev) => prev.filter((id) => id !== orderId));
+    }
+  };
+
+  const isAllCurrentPageSelected =
+    currentData.length > 0 &&
+    currentData.every((order) => props.selectedIds.includes(order.id_pesanan));
+
+  const isAllPagesSelected =
+    allData.length > 0 &&
+    allData.every((order) => props.selectedIds.includes(order.id_pesanan));
+
+  const isIndeterminate =
+    props.selectedIds.length > 0 &&
+    ((selectionMode === "current" && !isAllCurrentPageSelected) ||
+      (selectionMode === "all" && !isAllPagesSelected));
 
   useEffect(() => {
     if (props.orders?.data) {
@@ -64,6 +124,45 @@ export function OrderTableContent(props) {
         <Table className={needsHorizontalScroll ? "min-w-full" : ""}>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[40px]">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="flex items-center space-x-1 cursor-pointer">
+                      <Checkbox
+                        checked={
+                          selectionMode === "current"
+                            ? isAllCurrentPageSelected
+                            : isAllPagesSelected
+                        }
+                        onCheckedChange={handleSelectAll}
+                      />
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectionMode("current");
+                        handleSelectCurrentPage();
+                      }}
+                    >
+                      Select all on current page
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectionMode("all");
+                        handleSelectAllPages();
+                      }}
+                    >
+                      Select all across all pages ({totalItems})
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleClearSelection}>
+                      Clear selection
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableHead>
               <TableHead className={needsHorizontalScroll ? "w-[50px]" : ""}>
                 No
               </TableHead>
@@ -96,13 +195,21 @@ export function OrderTableContent(props) {
           <TableBody>
             {props.isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-4">
+                <TableCell colSpan={8} className="text-center py-4">
                   Loading orders...
                 </TableCell>
               </TableRow>
             ) : currentData.length ? (
               currentData.map((order, index) => (
                 <TableRow key={order.id_pesanan}>
+                  <TableCell>
+                    <Checkbox
+                      checked={props.selectedIds.includes(order.id_pesanan)}
+                      onCheckedChange={(checked) =>
+                        handleSelectOrder(order.id_pesanan, checked)
+                      }
+                    />
+                  </TableCell>
                   <TableCell>{startIndex + index + 1}</TableCell>
                   <TableCell className="font-medium">
                     {order.id_pesanan}
@@ -158,7 +265,7 @@ export function OrderTableContent(props) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-4">
+                <TableCell colSpan={8} className="text-center py-4">
                   No orders found.
                 </TableCell>
               </TableRow>
@@ -166,7 +273,7 @@ export function OrderTableContent(props) {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={6}>Total Orders: {totalItems}</TableCell>
+              <TableCell colSpan={8}>Total Orders: {totalItems}</TableCell>
             </TableRow>
           </TableFooter>
         </Table>

@@ -65,13 +65,13 @@ export default function CooperationViewDetail() {
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">Created At</TableCell>
+                  <TableCell className="font-medium">Date Added</TableCell>
                   <TableCell>
                     {formatDateToIndonesian(cooperation.created_at)}
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">Updated At</TableCell>
+                  <TableCell className="font-medium">Last Modified</TableCell>
                   <TableCell>
                     {formatDateToIndonesian(cooperation.updated_at)}
                   </TableCell>
@@ -99,13 +99,13 @@ export default function CooperationViewDetail() {
                     <TableCell>{cooperation.brand.nama_brand}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell className="font-medium">Created At</TableCell>
+                    <TableCell className="font-medium">Date Added</TableCell>
                     <TableCell>
                       {formatDateToIndonesian(cooperation.brand.created_at)}
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell className="font-medium">Updated At</TableCell>
+                    <TableCell className="font-medium">Last Modified</TableCell>
                     <TableCell>
                       {formatDateToIndonesian(cooperation.brand.updated_at)}
                     </TableCell>

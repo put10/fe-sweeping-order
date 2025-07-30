@@ -31,3 +31,20 @@ export const useFilterProductByBrand = (id_brand) => {
     enabled: !!id_brand,
   });
 };
+
+export const useGetBestsellingProducts = (params) => {
+  const { month, year, limit } = params || {};
+
+  return useQuery({
+    queryKey: ["get-bestselling-products", month, year, limit],
+    queryFn: () => productApi.getBestsellingProducts({ month, year, limit }),
+    enabled: !!month,
+  });
+};
+
+export const useGetProductsByStock = (limit) => {
+  return useQuery({
+    queryKey: ["get-products-by-stock", limit],
+    queryFn: () => productApi.getProductsByStock(limit),
+  });
+};

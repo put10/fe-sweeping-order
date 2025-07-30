@@ -13,6 +13,16 @@ export const sweepingOrderApi = {
     })();
   },
 
+  getSweepingReady: createApiRequest({
+    endpoint: "/sweeping-order/ready",
+    method: "GET",
+  }),
+
+  createSweepingOrderMany: createApiRequest({
+    endpoint: "/sweeping-order/create-many",
+    method: "POST",
+  }),
+
   searchSweepingOrder: (params) => {
     const searchTerm = params.id_proses || params.id_pesanan;
 

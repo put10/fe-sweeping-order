@@ -53,13 +53,13 @@ export default function CustomerViewDetail() {
                 <TableCell>{customer.kontak}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Created At</TableCell>
+                <TableCell className="font-medium">Date Added</TableCell>
                 <TableCell>
                   {formatDateToIndonesian(customer.created_at)}
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Updated At</TableCell>
+                <TableCell className="font-medium">Last Modified</TableCell>
                 <TableCell>
                   {formatDateToIndonesian(customer.updated_at)}
                 </TableCell>

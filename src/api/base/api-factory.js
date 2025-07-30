@@ -12,12 +12,13 @@ export function createApiRequest(options) {
     } = options;
 
     const config = {
-      ...(withAuth && {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("token")}`,
-        },
-      }),
-      ...extraConfig,
+      headers: {
+        ...(withAuth && { Authorization: `Bearer ${Cookies.get("token")}` }),
+        ...(extraConfig.headers || {}),
+      },
+      ...(extraConfig.headers
+        ? { ...extraConfig, headers: undefined }
+        : extraConfig),
     };
 
     let response;

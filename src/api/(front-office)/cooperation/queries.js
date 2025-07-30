@@ -37,3 +37,10 @@ export const useFilterCooperationByBrandAndDate = (
     enabled: !!id_brand && !!start_date && !!end_date,
   });
 };
+
+export const useGetExpiringSoonCooperations = (months) => {
+  return useQuery({
+    queryKey: ["get-expiring-soon-cooperations", months],
+    queryFn: () => cooperationApi.getExpiringSoonCooperations(months),
+  });
+};

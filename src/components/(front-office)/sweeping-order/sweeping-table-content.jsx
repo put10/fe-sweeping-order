@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { EyeIcon } from "lucide-react";
 import { PaginationLayout } from "@/components/template/pagination/pagination-layout";
 import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 export function SweepingTableContent(props) {
   const totalItems = props.sweepingOrder?.data?.length || 0;
@@ -118,19 +119,24 @@ export function SweepingTableContent(props) {
                     {sweeping.id_proses}
                   </TableCell>
                   <TableCell>
-                    <span
+                    <Badge
+                      variant="outline"
                       className={`capitalize ${
-                        sweeping.status_proses === "completed"
-                          ? "text-green-600"
-                          : sweeping.status_proses === "processed"
-                            ? "text-blue-600"
-                            : "text-yellow-600"
+                        sweeping.status_proses === "done_interface"
+                          ? "bg-green-100 text-green-700 border-green-200"
+                          : sweeping.status_proses === "not_interface"
+                            ? "bg-red-100 text-red-700 border-red-200"
+                            : sweeping.status_proses === "completed"
+                              ? "bg-green-100 text-green-700 border-green-200"
+                              : sweeping.status_proses === "processed"
+                                ? "bg-blue-100 text-blue-700 border-blue-200"
+                                : "bg-yellow-100 text-yellow-700 border-yellow-200"
                       }`}
                     >
                       {sweeping.status_proses
                         ? sweeping.status_proses.replace(/_/g, "-")
                         : "-"}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell
                     className={`sticky right-0 z-10 bg-white ${
@@ -159,7 +165,7 @@ export function SweepingTableContent(props) {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={8}>Total Records: {totalItems}</TableCell>
+              <TableCell colSpan={9}>Total Records: {totalItems}</TableCell>
             </TableRow>
           </TableFooter>
         </Table>

@@ -39,4 +39,12 @@ export const cooperationApi = {
       method: "GET",
     })();
   },
+
+  getExpiringSoonCooperations: (months) => {
+    const queryString = months ? `?months=${months}` : "";
+    return createApiRequest({
+      endpoint: `/kerjasama/expiring-soon${queryString}`,
+      method: "GET",
+    })();
+  },
 };

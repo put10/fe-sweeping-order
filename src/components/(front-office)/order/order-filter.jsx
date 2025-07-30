@@ -280,7 +280,7 @@ export function OrderFilter({
           <div className="grid gap-4 py-4">
             {/* Brand Filter */}
             <div className="grid gap-2">
-              <Label>Brand</Label>
+              <Label>Brand/Client</Label>
               <Popover open={brandFilterOpen} onOpenChange={setBrandFilterOpen}>
                 <PopoverTrigger asChild>
                   <Button
@@ -293,7 +293,7 @@ export function OrderFilter({
                       ? brandOptions.find(
                           (brand) => brand.value === selectedBrandId,
                         )?.label || "Select brand..."
-                      : "All brands"}
+                      : "All brands/clients"}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>

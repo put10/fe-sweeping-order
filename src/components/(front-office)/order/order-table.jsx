@@ -10,22 +10,35 @@ import {
 import {
   useExportFilteredOrdersMutation,
   useGenerateOrdersMutation,
+  useDownloadTemplateImportMutation,
+  useExportSelectedOrdersMutation,
 } from "@/api/(front-office)/order/mutation";
 import { useExportOrdersMutation } from "@/api/(front-office)/order/mutation";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Download } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
+import { PlusCircle, Download, FileDown } from "lucide-react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { OrderFilter } from "./order-filter";
 import {
   PREDEFINED_STATUS_OPTIONS,
   getAllStatusOptions,
 } from "@/utils/status-formatter";
 import { OrderTableContent } from "./order-table-content";
+import { OrderImportDialogForm } from "./order-import-dialog-form";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 export function OrderTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filterParams, setFilterParams] = useState({});
+  const [activeTab, setActiveTab] = useState("all-orders");
+  const [selectedIds, setSelectedIds] = useState([]);
+  const prevOrdersRef = useRef(null);
 
   const { data: allOrders, isLoading: allOrdersLoading } = useGetAllOrders();
   const { data: searchedOrders } = useGetSearchOrders(debouncedSearch);
@@ -37,10 +50,25 @@ export function OrderTable() {
   const generateOrders = useGenerateOrdersMutation();
   const exportOrders = useExportOrdersMutation();
   const exportFilteredOrders = useExportFilteredOrdersMutation();
+  const downloadTemplateImport = useDownloadTemplateImportMutation();
+  const exportSelectedOrders = useExportSelectedOrdersMutation();
 
   const [allOrdersPage, setAllOrdersPage] = useState(1);
   const [recentOrdersPage, setRecentOrdersPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Load selectedIds from localStorage
+  useEffect(() => {
+    const storedIds = localStorage.getItem("selectedOrderIds");
+    if (storedIds) {
+      setSelectedIds(JSON.parse(storedIds));
+    }
+  }, []);
+
+  // Save selectedIds to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("selectedOrderIds", JSON.stringify(selectedIds));
+  }, [selectedIds]);
 
   const hasActiveFilters = !!(
     filterParams.id_brand ||
@@ -123,6 +151,29 @@ export function OrderTable() {
     allOrders,
   ]);
 
+  const getActiveOrders = () => {
+    return activeTab === "all-orders" ? orders : recentOrders;
+  };
+
+  // Clear selections when orders data changes
+  useEffect(() => {
+    const activeOrders = getActiveOrders();
+    if (
+      prevOrdersRef.current &&
+      prevOrdersRef.current !== activeOrders &&
+      activeOrders?.data !== prevOrdersRef.current?.data
+    ) {
+      setSelectedIds([]);
+    }
+    prevOrdersRef.current = activeOrders;
+  }, [allOrders, filteredOrders, searchedOrders, recentOrders, activeTab]);
+
+  const handleExportSelected = () => {
+    if (selectedIds.length > 0) {
+      exportSelectedOrders.mutate(selectedIds);
+    }
+  };
+
   useEffect(() => {
     setAllOrdersPage(1);
   }, [debouncedSearch, filterParams]);
@@ -142,6 +193,10 @@ export function OrderTable() {
   const handleExportLastFiveMinutesOrders = () => {
     exportOrders.mutate();
   };
+
+  // const handleDownloadTemplate = () => {
+  //   downloadTemplateImport.mutate();
+  // };
 
   const handleFilterChange = (params) => {
     setFilterParams(params);
@@ -166,60 +221,94 @@ export function OrderTable() {
           searchTerm={searchTerm}
           disabled={generateOrders.isPending || exportOrders.isPending}
         />
+        <div className="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+          <OrderImportDialogForm
+            disabled={generateOrders.isPending || exportOrders.isPending}
+          />
 
-        <div className="md:flex md:flex-wrap grid grid-cols-1 gap-2 w-full md:w-auto justify-end">
-          {hasActiveFilters && (
-            <Button
-              onClick={() => exportFilteredOrders.mutate(filterParams)}
-              disabled={exportFilteredOrders.isPending}
-              variant="outline"
-              className="flex items-center gap-2 text-xs sm:text-sm"
-              size="sm"
-              title="Export Filtered Orders"
-            >
-              <Download />
-              <span className="hidden sm:inline">
-                {exportFilteredOrders.isPending
-                  ? "Exporting..."
-                  : "Export Filtered"}
-              </span>
-              <span className="sm:hidden">Export</span>
-            </Button>
-          )}
-          <Button
-            onClick={handleGenerateOrders}
-            disabled={generateOrders.isPending}
-            className="flex items-center gap-2 text-xs sm:text-sm"
-            size="sm"
-            title="Generate Orders"
-          >
-            <PlusCircle />
-            <span className="hidden sm:inline">
-              {generateOrders.isPending ? "Generating..." : "Generate Orders"}
-            </span>
-            <span className="sm:hidden">Generate</span>
-          </Button>
-          <Button
-            onClick={handleExportLastFiveMinutesOrders}
-            disabled={exportOrders.isPending}
-            variant="outline"
-            className="flex items-center gap-2 text-xs sm:text-sm"
-            size="sm"
-            title="Export Last 5 Minutes"
-          >
-            <Download />
-            <span className="hidden sm:inline">
-              {exportOrders.isPending
-                ? "Exporting..."
-                : "Export Last 5 Minutes"}
-            </span>
-            <span className="sm:hidden">Export</span>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 text-xs sm:text-sm"
+                size="sm"
+                disabled={
+                  generateOrders.isPending ||
+                  exportOrders.isPending ||
+                  downloadTemplateImport.isPending
+                }
+              >
+                <Download />
+                <span className="hidden sm:inline">Actions</span>
+                <span className="sm:hidden">Actions</span>
+                <ChevronDown className="h-4 w-4 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {/*<DropdownMenuItem*/}
+              {/*  onClick={handleDownloadTemplate}*/}
+              {/*  disabled={downloadTemplateImport.isPending}*/}
+              {/*>*/}
+              {/*  <FileDown className="mr-2 h-4 w-4" />*/}
+              {/*  {downloadTemplateImport.isPending*/}
+              {/*    ? "Downloading..."*/}
+              {/*    : "Download Template"}*/}
+              {/*</DropdownMenuItem>*/}
+
+              <DropdownMenuItem
+                onClick={handleGenerateOrders}
+                disabled={generateOrders.isPending}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {generateOrders.isPending ? "Generating..." : "Generate Orders"}
+              </DropdownMenuItem>
+
+              {selectedIds.length > 0 && (
+                <DropdownMenuItem
+                  onClick={handleExportSelected}
+                  disabled={exportSelectedOrders.isPending}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  {exportSelectedOrders.isPending
+                    ? "Exporting..."
+                    : `Export Selected (${selectedIds.length})`}
+                </DropdownMenuItem>
+              )}
+
+              {/*{activeTab === "recent-orders" && (*/}
+              {/*  <DropdownMenuItem*/}
+              {/*    onClick={handleExportLastFiveMinutesOrders}*/}
+              {/*    disabled={exportOrders.isPending}*/}
+              {/*  >*/}
+              {/*    <Download className="mr-2 h-4 w-4" />*/}
+              {/*    {exportOrders.isPending*/}
+              {/*      ? "Exporting..."*/}
+              {/*      : "Export Last 5 Minutes"}*/}
+              {/*  </DropdownMenuItem>*/}
+              {/*)}*/}
+
+              {hasActiveFilters && (
+                <DropdownMenuItem
+                  onClick={() => exportFilteredOrders.mutate(filterParams)}
+                  disabled={exportFilteredOrders.isPending}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  {exportFilteredOrders.isPending
+                    ? "Exporting..."
+                    : "Export Filtered"}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       <div className="rounded-md border">
-        <Tabs defaultValue="all-orders" className="w-full">
+        <Tabs
+          defaultValue="all-orders"
+          className="w-full"
+          onValueChange={(value) => setActiveTab(value)}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="all-orders">All Orders</TabsTrigger>
             <TabsTrigger value="recent-orders">Last 5 Minutes</TabsTrigger>
@@ -235,6 +324,8 @@ export function OrderTable() {
               setCurrentPage={setAllOrdersPage}
               itemsPerPage={itemsPerPage}
               statusOptions={statusOptions}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
             />
           </TabsContent>
           <TabsContent value="recent-orders">
@@ -246,6 +337,8 @@ export function OrderTable() {
               setCurrentPage={setRecentOrdersPage}
               itemsPerPage={itemsPerPage}
               statusOptions={statusOptions}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
             />
           </TabsContent>
         </Tabs>

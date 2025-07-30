@@ -15,6 +15,13 @@ export const useGetPackingById = (id_packing) => {
   });
 };
 
+export const useGetPackingReady = () => {
+  return useQuery({
+    queryKey: ["get-packing-ready"],
+    queryFn: () => packingApi.getPackingReady(),
+  });
+};
+
 export const useSearchPacking = (params) => {
   return useQuery({
     queryKey: ["search-packing", params],
@@ -27,6 +34,6 @@ export const useFilterPacking = (params) => {
   return useQuery({
     queryKey: ["filter-packing", params],
     queryFn: () => packingApi.filterPacking(params),
-    enabled: !!(params.start_date && params.end_date),
+    enabled: !!(params.start_date && params.end_date) || !!params.brand,
   });
 };

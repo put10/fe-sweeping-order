@@ -56,13 +56,13 @@ export default function ShippingServiceViewDetail() {
                 <TableCell>Rp{shippingService.tarif}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Created At</TableCell>
+                <TableCell className="font-medium">Date Added</TableCell>
                 <TableCell>
                   {formatDateToIndonesian(shippingService.created_at)}
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Updated At</TableCell>
+                <TableCell className="font-medium">Last Modified</TableCell>
                 <TableCell>
                   {formatDateToIndonesian(shippingService.updated_at)}
                 </TableCell>

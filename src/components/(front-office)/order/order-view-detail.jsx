@@ -13,6 +13,9 @@ import {
 import { formatDateToIndonesian } from "@/utils/date-formatter";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { getStatusBadgeColorClass } from "@/utils/status-formatter";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default function OrderViewDetail() {
@@ -58,8 +61,15 @@ export default function OrderViewDetail() {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Status</TableCell>
-                  <TableCell className={"capitalize"}>
-                    {order.status_pesanan}
+                  <TableCell>
+                    <Badge
+                      className={cn(
+                        getStatusBadgeColorClass(order.status_pesanan),
+                      )}
+                    >
+                      {order.status_pesanan.charAt(0).toUpperCase() +
+                        order.status_pesanan.slice(1).replace(/_/g, " ")}
+                    </Badge>
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -139,6 +149,7 @@ export default function OrderViewDetail() {
                 <TableRow>
                   <TableHead>No</TableHead>
                   <TableHead>Product Name</TableHead>
+                  <TableHead>Brand</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Quantity</TableHead>
                   <TableHead>Subtotal</TableHead>
@@ -149,6 +160,9 @@ export default function OrderViewDetail() {
                   <TableRow key={item.id_pesanan_item}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.produk.nama_produk}</TableCell>
+                    <TableCell>
+                      {item.produk.brand?.nama_brand || "-"}
+                    </TableCell>
                     <TableCell>Rp {item.produk.harga}</TableCell>
                     <TableCell>{item.qty}</TableCell>
                     <TableCell>Rp {item.subtotal}</TableCell>

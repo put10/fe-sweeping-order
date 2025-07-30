@@ -62,7 +62,7 @@ export default function PackingViewDetail() {
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">Created At</TableCell>
+                  <TableCell className="font-medium">Date Added</TableCell>
                   <TableCell>
                     {formatDateToIndonesian(packing.created_at)}
                   </TableCell>
